@@ -26,11 +26,7 @@ export default function DashboardPage() {
   const init = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 👉 dacă NU e logat → îl trimitem la login
-    if (!user) {
-      window.location.href = "/login";
-      return;
-    }
+    
 
     // 👉 încercăm să luăm profilul
     const { data: profile } = await supabase

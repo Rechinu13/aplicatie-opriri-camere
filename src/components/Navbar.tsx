@@ -16,10 +16,7 @@ export default function Navbar() {
     getUser();
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-  };
+ 
 
   return (
     <div style={navContainer}>
