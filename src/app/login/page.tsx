@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { getCurrentUserRole } from "@/lib/authHelpers";
+
 
 type Oprire = {
   id: number;
@@ -46,23 +46,50 @@ export default function OpririPage() {
   };
 
   useEffect(() => {
-    const init = async () => {
-      const currentRole = await getCurrentUserRole();
-      setUserRole(currentRole);
+  const init = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      if (
-        currentRole === "operator" ||
-        currentRole === "supervisor" ||
-        currentRole === "admin"
-      ) {
-        await fetchOpriri();
-      }
+    const user = session?.user;
 
-      setLoading(false);
-    };
+    // 👉 dacă NU e logat
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
 
-    init();
-  }, []);
+    // 👉 luăm profilul
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    let role = profile?.role;
+
+    // 👉 dacă nu există profil → îl creăm
+    if (!role) {
+      await supabase.from("profiles").insert([
+        {
+          id: user.id,
+          email: user.email,
+          role: "operator",
+        },
+      ]);
+
+      role = "operator";
+    }
+
+    setUserRole(role);
+
+    await fetchOpriri();
+
+    setLoading(false);
+  };
+
+  init();
+}, []);
 
   const handleSave = async () => {
     if (!data || !ora || !schimb || !masina || !operator || !motiv) {
