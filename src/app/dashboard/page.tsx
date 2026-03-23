@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { exportOpririToExcel } from "@/lib/exportExcel";
-import { getCurrentUserRole } from "@/lib/authHelpers";
+
 
 type Oprire = {
   id: number;
@@ -23,26 +23,54 @@ export default function DashboardPage() {
   const [opriri, setOpriri] = useState<Oprire[]>([]);
 
   useEffect(() => {
-    const init = async () => {
-      const currentRole = await getCurrentUserRole();
-      setRole(currentRole);
+  const init = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
 
-      if (currentRole === "operator" || currentRole === "supervisor" || currentRole === "admin") {
-        const { data, error } = await supabase
-          .from("assembly_stops")
-          .select("*")
-          .order("id", { ascending: false });
+    // 👉 dacă NU e logat → îl trimitem la login
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
 
-        if (!error) {
-          setOpriri(data || []);
-        }
-      }
+    // 👉 încercăm să luăm profilul
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
 
-      setLoading(false);
-    };
+    let currentRole = profile?.role;
 
-    init();
-  }, []);
+    // 👉 dacă nu există profil → îl creăm automat
+    if (!currentRole) {
+      await supabase.from("profiles").insert([
+        {
+          id: user.id,
+          email: user.email,
+          role: "operator",
+        },
+      ]);
+
+      currentRole = "operator";
+    }
+
+    setRole(currentRole);
+
+    // 👉 aducem opririle
+    const { data, error } = await supabase
+      .from("assembly_stops")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (!error) {
+      setOpriri(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  init();
+}, []);
 
   if (loading) {
     return <p style={{ padding: "30px", fontFamily: "Arial, sans-serif" }}>Se încarcă...</p>;
