@@ -30,7 +30,61 @@ export default function LoginPage() {
     setMesaj("Autentificare reușită.");
     router.push("/dashboard");
   };
+  const handleRegister = async () => {
+  setEroare("");
+  setMesaj("");
 
+  if (!email || !parola || !confirmareParola) {
+    setEroare("Completează toate câmpurile.");
+    return;
+  }
+
+  if (parola !== confirmareParola) {
+    setEroare("Parolele nu coincid.");
+    return;
+  }
+
+  if (parola.length < 6) {
+    setEroare("Parola trebuie să aibă minim 6 caractere.");
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: parola,
+  });
+
+  if (error) {
+    setEroare(error.message);
+    return;
+  }
+
+  const userId = data.user?.id;
+
+  if (!userId) {
+    setEroare("Cont creat, dar nu s-a obținut ID-ul.");
+    return;
+  }
+
+  // salvăm profilul
+  const { error: profileError } = await supabase.from("profiles").insert([
+    {
+      id: userId,
+      email: email,
+      role: "operator",
+    },
+  ]);
+
+  if (profileError) {
+    setEroare("Cont creat, dar profilul nu a fost salvat.");
+    return;
+  }
+
+  setMesaj("Cont creat cu succes. Te poți loga.");
+  setEmail("");
+  setParola("");
+  setConfirmareParola("");
+};
   return (
     <div style={pageWrapper}>
       <div style={cardStyle}>
@@ -83,6 +137,9 @@ export default function LoginPage() {
           <button onClick={handleLogin} style={primaryButton}>
             Login
           </button>
+          <button onClick={handleRegister} style={primaryButton}>
+  Creează cont
+</button>
 
           <p style={bottomText}>
             Nu ai cont?{" "}
