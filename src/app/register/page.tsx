@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [parola, setParola] = useState("");
   const [mesaj, setMesaj] = useState("");
   const [eroare, setEroare] = useState("");
+  const [confirmareParola, setConfirmareParola] = useState("");
 
   const handleLogin = async () => {
     setMesaj("");
@@ -130,7 +131,16 @@ export default function LoginPage() {
               placeholder="Introdu parola"
             />
           </div>
-
+          <div style={fieldWrap}>
+  <label style={labelStyle}>Confirmă parola</label>
+  <input
+    type="password"
+    value={confirmareParola}
+    onChange={(e) => setConfirmareParola(e.target.value)}
+    style={inputStyle}
+    placeholder="Confirmă parola"
+  />
+</div>
           {eroare && <p style={errorText}>{eroare}</p>}
           {mesaj && <p style={successText}>{mesaj}</p>}
 
