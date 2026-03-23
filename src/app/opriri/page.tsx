@@ -39,11 +39,11 @@ export default function OpririPage() {
 
       const user = session?.user;
 
-      // 🔥 IMPORTANT: NU redirectăm aici → evităm loop
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+if (!user) {
+  setUserRole(null);
+  setLoading(false);
+  return;
+}
 
       const { data: profile } = await supabase
         .from("profiles")
