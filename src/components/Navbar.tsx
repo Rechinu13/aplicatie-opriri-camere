@@ -9,14 +9,21 @@ export default function Navbar() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setEmail(data.user?.email ?? null);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      setEmail(session?.user?.email ?? null);
     };
 
     getUser();
   }, []);
 
- 
+  // 🔥 AICI ERA PROBLEMA
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
 
   return (
     <div style={navContainer}>
