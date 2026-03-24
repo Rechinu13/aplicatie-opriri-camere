@@ -13,7 +13,7 @@ export default function Navbar() {
     const result = await getUserWithRole();
 
     if (result) {
-      setEmail(result.user.email);
+    setEmail(result.user.email ?? null);
       setRole(result.role);
     }
   };
