@@ -113,100 +113,80 @@ if (selectedMachine) {
   const uniqueMachines = [...new Set(opriri.map((o) => o.machine))];
 
   return (
-    <div style={{ padding: "40px", maxWidth: "1100px", margin: "auto" }}>
-      <h1 style={{ marginBottom: "30px" }}>Dashboard</h1>
+  <div style={{ padding: "40px", maxWidth: "1100px", margin: "auto" }}>
+    <h1 style={{ marginBottom: "30px" }}>Dashboard</h1>
 
-      {/* STATS */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
-        <div className="card">
-          <p style={{ margin: 0, color: "#64748b" }}>Total opriri</p>
-          <h2>{total}</h2>
-        </div>
+    {/* 🔥 FILTRE - SUS */}
+    <div className="card" style={{ marginBottom: "30px" }}>
+      <h3 style={{ marginTop: 0 }}>Filtre</h3>
 
-        <div className="card">
-          <p style={{ margin: 0, color: "#64748b" }}>Top mașină</p>
-          <h2>{topMachine}</h2>
-        </div>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <input
+          date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
 
-        <div className="card">
-          <p style={{ margin: 0, color: "#64748b" }}>Top motiv</p>
-          <h2>{topReason}</h2>
-        </div>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+
+        <select
+          value={selectedMachine}
+          onChange={(e) => setSelectedMachine(e.target.value)}
+        >
+          <option value="">Toate mașinile</option>
+          {uniqueMachines.map((m) => (
+            <option key={m}>{m}</option>
+          ))}
+        </select>
       </div>
+    </div>
 
-      {/* FILTRE */}
-      {role !== "operator" && (
-        <div className="card" style={{ marginBottom: "30px" }}>
-          <input
-            type="month"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          />
-
-          <select
-            value={selectedMachine}
-            onChange={(e) => setSelectedMachine(e.target.value)}
-          >
-            <option value="">Toate mașinile</option>
-            {uniqueMachines.map((m) => (
-              <option key={m}>{m}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* GRAFIC ZILE */}
-      <div className="card" style={{ marginBottom: "30px" }}>
-        <h3>Opriri pe zile</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartDataDays}>
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* GRAFIC MASINI */}
+    {/* 📊 STATS */}
+    <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
       <div className="card">
-        <h3>Opriri pe mașini</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartDataMachines}>
-            <XAxis dataKey="machine" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" />
-          </BarChart>
-        </ResponsiveContainer>
-      <div className="card" style={{ marginBottom: "30px" }}>
-  <h3 style={{ marginTop: 0 }}>Filtre</h3>
+        <p style={{ margin: 0, color: "#94a3b8" }}>Total opriri</p>
+        <h2>{total}</h2>
+      </div>
 
-  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    
-    <input
-      type="date"
-      value={startDate}
-      onChange={(e) => setStartDate(e.target.value)}
-    />
+      <div className="card">
+        <p style={{ margin: 0, color: "#94a3b8" }}>Top mașină</p>
+        <h2>{topMachine}</h2>
+      </div>
 
-    <input
-      type="date"
-      value={endDate}
-      onChange={(e) => setEndDate(e.target.value)}
-    />
+      <div className="card">
+        <p style={{ margin: 0, color: "#94a3b8" }}>Top motiv</p>
+        <h2>{topReason}</h2>
+      </div>
+    </div>
 
-    <select
-      value={selectedMachine}
-      onChange={(e) => setSelectedMachine(e.target.value)}
-    >
-      <option value="">Toate mașinile</option>
-      {uniqueMachines.map((m) => (
-        <option key={m}>{m}</option>
-      ))}
-    </select>
+    {/* 📈 GRAFIC ZILE */}
+    <div className="card" style={{ marginBottom: "30px" }}>
+      <h3>Opriri pe zile</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={chartDataDays}>
+          <XAxis dataKey="day" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
 
+    {/* 📊 GRAFIC MASINI */}
+    <div className="card">
+      <h3>Opriri pe mașini</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={chartDataMachines}>
+          <XAxis dataKey="machine" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   </div>
-</div>
-  );
-}
+);
