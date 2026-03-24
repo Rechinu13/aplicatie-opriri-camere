@@ -12,23 +12,30 @@ type Oprire = {
   operator_name: string;
   reason: string;
   details: string;
-  photo_name: string;
 };
 
 export default function OpririPage() {
-  const [opriri, setOpriri] = useState<Oprire[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
+
+  const [data, setData] = useState("");
+  const [ora, setOra] = useState("");
+  const [schimb, setSchimb] = useState("Schimb 1");
+  const [masina, setMasina] = useState("");
+  const [operator, setOperator] = useState("");
+  const [motiv, setMotiv] = useState("");
+  const [detalii, setDetalii] = useState("");
+
+  const [opriri, setOpriri] = useState<Oprire[]>([]);
+  const [mesaj, setMesaj] = useState("");
 
   const fetchOpriri = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("assembly_stops")
       .select("*")
       .order("id", { ascending: false });
 
-    if (!error) {
-      setOpriri(data || []);
-    }
+    setOpriri(data || []);
   };
 
   useEffect(() => {
@@ -37,37 +44,11 @@ export default function OpririPage() {
         data: { session },
       } = await supabase.auth.getSession();
 
-      const user = session?.user;
+      setUser(session?.user || null);
 
-if (!user) {
-  setUserRole(null);
-  setLoading(false);
-  return;
-}
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user!.id)
-        .single();
-
-      let role = profile?.role;
-
-      if (!role) {
-        await supabase.from("profiles").insert([
-          {
-            id: user!.id,
-            email: user!.email,
-            role: "operator",
-          },
-        ]);
-
-        role = "operator";
+      if (session?.user) {
+        await fetchOpriri();
       }
-
-      setUserRole(role);
-
-      await fetchOpriri();
 
       setLoading(false);
     };
@@ -75,32 +56,83 @@ if (!user) {
     init();
   }, []);
 
-  if (loading) {
-    return <p style={{ padding: "20px" }}>Se încarcă...</p>;
-  }
+  const handleSave = async () => {
+    if (!data || !ora || !masina || !operator || !motiv) {
+      setMesaj("Completează toate câmpurile!");
+      return;
+    }
 
-  if (!userRole) {
+    await supabase.from("assembly_stops").insert([
+      {
+        stop_date: data,
+        stop_time: ora,
+        shift: schimb,
+        machine: masina,
+        operator_name: operator,
+        reason: motiv,
+        details: detalii,
+      },
+    ]);
+
+    setMesaj("Salvat ✔️");
+
+    setData("");
+    setOra("");
+    setMasina("");
+    setOperator("");
+    setMotiv("");
+    setDetalii("");
+
+    await fetchOpriri();
+  };
+
+  if (loading) return <p>Se încarcă...</p>;
+
+  if (!user) {
     return (
-      <div style={{ padding: "20px" }}>
+      <div style={{ padding: "40px" }}>
         <h1>Nu ești logat</h1>
-        <p>Te rog intră în aplicație.</p>
+        <p>Mergi la login.</p>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "40px", maxWidth: "900px", margin: "auto" }}>
       <h1>Opriri</h1>
 
-      {opriri.length === 0 ? (
-        <p>Nu există opriri.</p>
-      ) : (
-        opriri.map((o) => (
-          <div key={o.id} style={{ marginBottom: "10px" }}>
-            <strong>{o.machine}</strong> — {o.reason}
-          </div>
-        ))
-      )}
+      {/* FORMULAR */}
+      <div style={{ marginBottom: "30px" }}>
+        <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
+        <input type="time" value={ora} onChange={(e) => setOra(e.target.value)} />
+
+        <select value={schimb} onChange={(e) => setSchimb(e.target.value)}>
+          <option>Schimb 1</option>
+          <option>Schimb 2</option>
+          <option>Schimb 3</option>
+        </select>
+
+        <input placeholder="Mașină" value={masina} onChange={(e) => setMasina(e.target.value)} />
+        <input placeholder="Operator" value={operator} onChange={(e) => setOperator(e.target.value)} />
+        <input placeholder="Motiv" value={motiv} onChange={(e) => setMotiv(e.target.value)} />
+
+        <textarea
+          placeholder="Detalii"
+          value={detalii}
+          onChange={(e) => setDetalii(e.target.value)}
+        />
+
+        <button onClick={handleSave}>Adaugă</button>
+
+        {mesaj && <p>{mesaj}</p>}
+      </div>
+
+      {/* LISTĂ */}
+      {opriri.map((o) => (
+        <div key={o.id} style={{ marginBottom: "10px", borderBottom: "1px solid #ccc" }}>
+          <strong>{o.machine}</strong> — {o.reason}
+        </div>
+      ))}
     </div>
   );
 }
