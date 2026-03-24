@@ -25,7 +25,8 @@ export default function DashboardPage() {
   const [role, setRole] = useState<string | null>(null);
   const [opriri, setOpriri] = useState<Oprire[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedMachine, setSelectedMachine] = useState("");
 
@@ -59,15 +60,17 @@ export default function DashboardPage() {
   // 🔥 FILTRARE
   let filtered = opriri;
 
-  if (selectedMonth) {
-    filtered = filtered.filter((o) =>
-      o.stop_date.startsWith(selectedMonth)
-    );
-  }
+if (startDate) {
+  filtered = filtered.filter(o => o.stop_date >= startDate);
+}
 
-  if (selectedMachine) {
-    filtered = filtered.filter((o) => o.machine === selectedMachine);
-  }
+if (endDate) {
+  filtered = filtered.filter(o => o.stop_date <= endDate);
+}
+
+if (selectedMachine) {
+  filtered = filtered.filter(o => o.machine === selectedMachine);
+}
 
   // 📊 GRAFIC ZILE
   const byDay: Record<string, number> = {};
@@ -176,7 +179,34 @@ export default function DashboardPage() {
             <Bar dataKey="count" />
           </BarChart>
         </ResponsiveContainer>
-      </div>
-    </div>
+      <div className="card" style={{ marginBottom: "30px" }}>
+  <h3 style={{ marginTop: 0 }}>Filtre</h3>
+
+  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+    
+    <input
+      type="date"
+      value={startDate}
+      onChange={(e) => setStartDate(e.target.value)}
+    />
+
+    <input
+      type="date"
+      value={endDate}
+      onChange={(e) => setEndDate(e.target.value)}
+    />
+
+    <select
+      value={selectedMachine}
+      onChange={(e) => setSelectedMachine(e.target.value)}
+    >
+      <option value="">Toate mașinile</option>
+      {uniqueMachines.map((m) => (
+        <option key={m}>{m}</option>
+      ))}
+    </select>
+
+  </div>
+</div>
   );
 }
