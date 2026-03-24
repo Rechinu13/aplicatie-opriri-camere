@@ -32,7 +32,7 @@ export default function DashboardPage() {
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", user.id)
+      .eq("id", user!.id)
       .single();
 
     let currentRole = profile?.role;

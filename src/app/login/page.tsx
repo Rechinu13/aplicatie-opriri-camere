@@ -49,7 +49,7 @@ export default function OpririPage() {
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", user!.id)
         .single();
 
       let role = profile?.role;
