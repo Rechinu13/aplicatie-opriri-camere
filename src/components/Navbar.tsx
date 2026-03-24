@@ -4,46 +4,42 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { getUserWithRole } from "@/lib/getUser";
+
 export default function Navbar() {
   const [email, setEmail] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-  const init = async () => {
-    const result = await getUserWithRole();
+    const init = async () => {
+      const result = await getUserWithRole();
+      if (result) {
+        setEmail(result.user.email ?? null);
+        setRole(result.role);
+      }
+    };
 
-    if (result) {
-    setEmail(result.user.email ?? null);
-      setRole(result.role);
-    }
-  };
+    init();
+  }, []);
 
-  init();
-}, []);
-
-  // 🔥 AICI ERA PROBLEMA
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
   };
 
   return (
-    <div style={navContainer}>
-      <div style={left}>
-        <h2 style={logo}>QC Stop Tracker</h2>
+    <div style={nav}>
+      <div style={logo}>QC Tracker</div>
 
-        <div style={links}>
-          <Link href="/">Acasă</Link>
-          <Link href="/dashboard">Dashboard</Link>
-          <Link href="/opriri">Opriri</Link>
-          {role === "admin" && <Link href="/admin">Admin</Link>}
-        </div>
+      <div style={links}>
+        <Link href="/">Home</Link>
+        <Link href="/dashboard">Dashboard</Link>
+        <Link href="/opriri">Opriri</Link>
+        {role === "admin" && <Link href="/admin">Admin</Link>}
       </div>
 
       <div style={right}>
-        {email && <span style={emailStyle}>{email}</span>}
-
-        <button onClick={handleLogout} style={logoutBtn}>
+        {email && <span style={badge}>{email}</span>}
+        <button onClick={handleLogout} style={logout}>
           Logout
         </button>
       </div>
@@ -51,22 +47,18 @@ export default function Navbar() {
   );
 }
 
-const navContainer = {
+const nav = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "15px 30px",
-  backgroundColor: "#e2e8f0",
-};
-
-const left = {
-  display: "flex",
-  alignItems: "center",
-  gap: "30px",
+  padding: "16px 30px",
+  background: "#0f172a",
+  color: "white",
 };
 
 const logo = {
-  margin: 0,
+  fontWeight: 700,
+  fontSize: "18px",
 };
 
 const links = {
@@ -77,20 +69,16 @@ const links = {
 const right = {
   display: "flex",
   alignItems: "center",
-  gap: "15px",
+  gap: "10px",
 };
 
-const emailStyle = {
-  backgroundColor: "#cbd5f5",
+const badge = {
+  background: "#1e293b",
   padding: "6px 12px",
-  borderRadius: "20px",
+  borderRadius: "999px",
+  fontSize: "12px",
 };
 
-const logoutBtn = {
-  padding: "8px 14px",
-  backgroundColor: "#0f172a",
-  color: "white",
-  border: "none",
-  borderRadius: "10px",
-  cursor: "pointer",
+const logout = {
+  background: "#ef4444",
 };
