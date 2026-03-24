@@ -56,8 +56,8 @@ if (!user) {
       if (!role) {
         await supabase.from("profiles").insert([
           {
-            id: user.id,
-            email: user.email,
+            id: user!id,
+            email: user!.email,
             role: "operator",
           },
         ]);

@@ -41,8 +41,8 @@ export default function DashboardPage() {
     if (!currentRole) {
       await supabase.from("profiles").insert([
         {
-          id: user.id,
-          email: user.email,
+          id: user!.id,
+          email: user!.email,
           role: "operator",
         },
       ]);

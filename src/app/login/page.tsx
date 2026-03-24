@@ -57,7 +57,7 @@ export default function OpririPage() {
       if (!role) {
         await supabase.from("profiles").insert([
           {
-            id: user.id,
+            id: user!.id,
             email: user.email,
             role: "operator",
           },

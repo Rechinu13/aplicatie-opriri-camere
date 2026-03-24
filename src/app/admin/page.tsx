@@ -19,7 +19,7 @@ export default function AdminPage() {
 
   if (loading) {
     return <p>Se încarcă...</p>;
-  }
+  
 
   if (role !== "admin") {
     return (
