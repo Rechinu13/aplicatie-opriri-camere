@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getUserWithRole } from "@/lib/getUser";
 
 export default function AdminPage() {
   const [role, setRole] = useState<string | null>(null);
@@ -9,24 +9,14 @@ export default function AdminPage() {
 
   useEffect(() => {
     const init = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const result = await getUserWithRole();
 
-      const user = session?.user;
-
-      if (!user) {
+      if (!result) {
         setLoading(false);
         return;
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user!.id)
-        .single();
-
-      setRole(profile?.role || null);
+      setRole(result.role);
       setLoading(false);
     };
 
@@ -34,19 +24,13 @@ export default function AdminPage() {
   }, []);
 
   if (loading) {
-    return <p>Se încarcă...</p>;
+    return <p style={{ padding: "30px" }}>Se încarcă...</p>;
   }
 
+  // 🔐 AICI ESTE BLOCAREA REALĂ
   if (role !== "admin") {
     return (
-      <div
-        style={{
-          fontFamily: "Arial, sans-serif",
-          maxWidth: "1100px",
-          margin: "40px auto",
-          padding: "0 20px",
-        }}
-      >
+      <div style={{ padding: "40px", textAlign: "center" }}>
         <h1>Acces interzis</h1>
         <p>Doar adminul poate accesa această pagină.</p>
       </div>
@@ -54,84 +38,20 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ fontFamily: "Arial", maxWidth: "900px", margin: "40px auto" }}>
+    <div style={{ padding: "40px", maxWidth: "900px", margin: "auto" }}>
       <h1>Panou Admin</h1>
-      <p>
-        Aici vor fi administrate conturile utilizatorilor și setările aplicației.
-      </p>
 
       <div
         style={{
           marginTop: "20px",
           border: "1px solid #ccc",
-          borderRadius: "10px",
+          borderRadius: "12px",
           padding: "20px",
         }}
       >
         <h2>Utilizatori</h2>
 
-        <div
-          style={{
-            marginTop: "15px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-          }}
-        >
-          <div
-            style={{
-              border: "1px solid #ddd",
-              padding: "12px",
-              borderRadius: "8px",
-            }}
-          >
-            <p>
-              <strong>Nume:</strong> Cosmin
-            </p>
-            <p>
-              <strong>Rol:</strong> admin
-            </p>
-            <p>
-              <strong>Status:</strong> activ
-            </p>
-          </div>
-
-          <div
-            style={{
-              border: "1px solid #ddd",
-              padding: "12px",
-              borderRadius: "8px",
-            }}
-          >
-            <p>
-              <strong>Nume:</strong> Operator 1
-            </p>
-            <p>
-              <strong>Rol:</strong> operator
-            </p>
-            <p>
-              <strong>Status:</strong> activ
-            </p>
-          </div>
-
-          <div
-            style={{
-              border: "1px solid #ddd",
-              padding: "12px",
-              borderRadius: "8px",
-            }}
-          >
-            <p>
-              <strong>Nume:</strong> Supervisor 1
-            </p>
-            <p>
-              <strong>Rol:</strong> supervisor
-            </p>
-            <p>
-              <strong>Status:</strong> activ
-            </p>
-          </div>
-        </div>
+        <p>Aici vom gestiona utilizatorii (pasul următor 😉)</p>
       </div>
     </div>
   );

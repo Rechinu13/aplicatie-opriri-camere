@@ -3,21 +3,23 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-
+import { getUserWithRole } from "@/lib/getUser";
 export default function Navbar() {
   const [email, setEmail] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  const init = async () => {
+    const result = await getUserWithRole();
 
-      setEmail(session?.user?.email ?? null);
-    };
+    if (result) {
+      setEmail(result.user.email);
+      setRole(result.role);
+    }
+  };
 
-    getUser();
-  }, []);
+  init();
+}, []);
 
   // 🔥 AICI ERA PROBLEMA
   const handleLogout = async () => {
@@ -34,6 +36,7 @@ export default function Navbar() {
           <Link href="/">Acasă</Link>
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/opriri">Opriri</Link>
+          {role === "admin" && <Link href="/admin">Admin</Link>}
         </div>
       </div>
 
