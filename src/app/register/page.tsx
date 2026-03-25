@@ -101,7 +101,7 @@ if (loginError) {
 
 // 🔥 REDIRECT
 router.push("/dashboard");
-
+  }
   return (
     <div style={wrapper}>
       <div style={card}>
