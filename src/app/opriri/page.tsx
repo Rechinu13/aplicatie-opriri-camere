@@ -128,51 +128,68 @@ export default function OpririPage() {
   }
 
   return (
-    <div style={{ padding: "40px", maxWidth: "900px", margin: "auto" }}>
-      <h1 style={{ marginBottom: "20px" }}>Opriri</h1>
+  <div className="container">
+    <h1 style={{ marginBottom: "20px" }}>Opriri</h1>
 
-      {/* FORMULAR */}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: "20px",
+      }}
+    >
+      {/* 🔥 FORMULAR */}
       {role !== "supervisor" && (
         <div className="card">
           <h3>Adaugă oprire</h3>
 
-          <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
-          <input type="time" value={ora} onChange={(e) => setOra(e.target.value)} />
+          <div style={{ display: "grid", gap: "10px" }}>
+            <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
+            <input type="time" value={ora} onChange={(e) => setOra(e.target.value)} />
 
-          <select value={schimb} onChange={(e) => setSchimb(e.target.value)}>
-            <option>Schimb 1</option>
-            <option>Schimb 2</option>
-            <option>Schimb 3</option>
-          </select>
+            <select value={schimb} onChange={(e) => setSchimb(e.target.value)}>
+              <option>Schimb 1</option>
+              <option>Schimb 2</option>
+              <option>Schimb 3</option>
+            </select>
 
-          <input placeholder="Mașină" value={masina} onChange={(e) => setMasina(e.target.value)} />
-          <input placeholder="Operator" value={operator} onChange={(e) => setOperator(e.target.value)} />
-          <input placeholder="Motiv" value={motiv} onChange={(e) => setMotiv(e.target.value)} />
+            <input placeholder="Mașină" value={masina} onChange={(e) => setMasina(e.target.value)} />
+            <input placeholder="Operator" value={operator} onChange={(e) => setOperator(e.target.value)} />
+            <input placeholder="Motiv" value={motiv} onChange={(e) => setMotiv(e.target.value)} />
 
-          <textarea
-            placeholder="Detalii"
-            value={detalii}
-            onChange={(e) => setDetalii(e.target.value)}
-          />
+            <textarea
+              placeholder="Detalii"
+              value={detalii}
+              onChange={(e) => setDetalii(e.target.value)}
+            />
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              if (e.target.files?.[0]) {
-                setSelectedFile(e.target.files[0]);
-              }
-            }}
-          />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  setSelectedFile(e.target.files[0]);
+                }
+              }}
+            />
 
-          <button onClick={handleSave}>Adaugă</button>
+            <button
+              onClick={handleSave}
+              style={{
+                background: "#22c55e",
+                marginTop: "10px",
+              }}
+            >
+              Adaugă oprire
+            </button>
 
-          {mesaj && <p>{mesaj}</p>}
+            {mesaj && <p>{mesaj}</p>}
+          </div>
         </div>
       )}
 
-      {/* LISTA */}
-      <div className="card" style={{ marginTop: "20px" }}>
+      {/* 🔥 LISTA */}
+      <div className="card">
         <h3>Opriri existente</h3>
 
         {opriri.length === 0 ? (
@@ -184,29 +201,20 @@ export default function OpririPage() {
               style={{
                 marginBottom: "15px",
                 padding: "15px",
-                border: "1px solid #334155",
+                background: "#0f172a",
                 borderRadius: "10px",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <div>
-                  <p style={{ margin: 0, fontWeight: 600 }}>
-                    <Wrench size={16} style={{ marginRight: "6px" }} />
-                    {o.machine}
+                  <p style={{ margin: 0, fontWeight: 600 }}>{o.machine}</p>
+                  <p style={{ margin: "5px 0", color: "#94a3b8" }}>{o.reason}</p>
+
+                  <p style={{ fontSize: "12px", color: "#64748b" }}>
+                    {o.stop_date} • {o.stop_time}
                   </p>
 
-                  <p style={{ margin: "4px 0", color: "#475569" }}>
-                    {o.reason}
-                  </p>
-
-                  <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
-                    <Calendar size={12} /> {o.stop_date} &nbsp;
-                    <Clock size={12} /> {o.stop_time}
-                  </p>
-
-                  {o.details && (
-                    <p style={{ marginTop: "6px" }}>{o.details}</p>
-                  )}
+                  {o.details && <p>{o.details}</p>}
 
                   {o.photo_name && (
                     <img
@@ -215,18 +223,20 @@ export default function OpririPage() {
                           .from("poze")
                           .getPublicUrl(o.photo_name).data.publicUrl
                       }
-                      alt="poza"
                       style={{
-                        width: "120px",
+                        width: "150px",
                         marginTop: "10px",
-                        borderRadius: "10px",
+                        borderRadius: "8px",
                       }}
                     />
                   )}
                 </div>
 
                 {role === "admin" && (
-                  <button onClick={() => handleDelete(o.id)}>
+                  <button
+                    onClick={() => handleDelete(o.id)}
+                    style={{ background: "#dc2626" }}
+                  >
                     Șterge
                   </button>
                 )}
@@ -236,5 +246,6 @@ export default function OpririPage() {
         )}
       </div>
     </div>
-  );
+  </div>
+);
 }
