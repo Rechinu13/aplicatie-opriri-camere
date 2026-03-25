@@ -22,7 +22,7 @@ export default function OpririPage() {
   const [loading, setLoading] = useState(true);
 
   const [opriri, setOpriri] = useState<Oprire[]>([]);
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [data, setData] = useState("");
   const [ora, setOra] = useState("");
   const [schimb, setSchimb] = useState("Schimb 1");
@@ -62,34 +62,53 @@ export default function OpririPage() {
   }, []);
 
   const handleSave = async () => {
-    if (!data || !ora || !masina || !operator || !motiv) {
-      setMesaj("Completează toate câmpurile!");
+  if (!data || !ora || !masina || !operator || !motiv) {
+    setMesaj("Completează toate câmpurile!");
+    return;
+  }
+
+  let photo_name = null;
+
+  if (selectedFile) {
+    const fileName = `${Date.now()}-${selectedFile.name}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("poze")
+      .upload(fileName, selectedFile);
+
+    if (uploadError) {
+      setMesaj("Eroare upload poză");
       return;
     }
 
-    await supabase.from("assembly_stops").insert([
-      {
-        stop_date: data,
-        stop_time: ora,
-        shift: schimb,
-        machine: masina,
-        operator_name: operator,
-        reason: motiv,
-        details: detalii,
-      },
-    ]);
+    photo_name = fileName;
+  }
 
-    setMesaj("Salvat ✔️");
+  await supabase.from("assembly_stops").insert([
+    {
+      stop_date: data,
+      stop_time: ora,
+      shift: schimb,
+      machine: masina,
+      operator_name: operator,
+      reason: motiv,
+      details: detalii,
+      photo_name: photo_name,
+    },
+  ]);
 
-    setData("");
-    setOra("");
-    setMasina("");
-    setOperator("");
-    setMotiv("");
-    setDetalii("");
+  setMesaj("Salvat ✔️");
 
-    await fetchOpriri();
-  };
+  setData("");
+  setOra("");
+  setMasina("");
+  setOperator("");
+  setMotiv("");
+  setDetalii("");
+  setSelectedFile(null);
+
+  await fetchOpriri();
+};
 
   const handleDelete = async (id: number) => {
     await supabase.from("assembly_stops").delete().eq("id", id);
@@ -133,7 +152,15 @@ export default function OpririPage() {
             value={detalii}
             onChange={(e) => setDetalii(e.target.value)}
           />
-
+          <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    if (e.target.files?.[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  }}
+/>
           <button onClick={handleSave}>Adaugă</button>
 
           {mesaj && <p>{mesaj}</p>}
@@ -147,14 +174,24 @@ export default function OpririPage() {
         {opriri.length === 0 ? (
           <p>Nu există opriri</p>
         ) : (
-          opriri.map((o) => (
-            <div
-              key={o.id}
-              style={{
-                padding: "12px",
-                borderBottom: "1px solid #e2e8f0",
-              }}
-            >
+          {opriri.map((o) => (
+  <div key={o.id} style={{ marginBottom: "20px" }}>
+    <p><strong>{o.machine}</strong></p>
+    <p>{o.reason}</p>
+
+    {o.photo_name && (
+      <img
+        src={
+          supabase.storage
+            .from("poze")
+            .getPublicUrl(o.photo_name).data.publicUrl
+        }
+        alt="poza"
+        style={{ width: "120px", borderRadius: "10px" }}
+      />
+    )}
+  </div>
+))}
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <div>
                   <p style={{ margin: 0, fontWeight: 600 }}>
