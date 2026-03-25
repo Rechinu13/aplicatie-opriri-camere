@@ -1,16 +1,14 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const inviteCode = params.get("invite");
+
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
 
   const [email, setEmail] = useState("");
   const [parola, setParola] = useState("");
@@ -18,11 +16,17 @@ export default function RegisterPage() {
   const [mesaj, setMesaj] = useState("");
   const [eroare, setEroare] = useState("");
 
+  // 🔥 luăm invite din URL (client only)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("invite");
+    setInviteCode(code);
+  }, []);
+
   const handleRegister = async () => {
     setEroare("");
     setMesaj("");
 
-    // 🔥 verificare invitație
     if (!inviteCode) {
       setEroare("Acces doar pe bază de invitație.");
       return;
@@ -39,7 +43,6 @@ export default function RegisterPage() {
       return;
     }
 
-    // 🔥 validări
     if (!email || !parola || !confirmareParola) {
       setEroare("Completează toate câmpurile.");
       return;
@@ -55,7 +58,6 @@ export default function RegisterPage() {
       return;
     }
 
-    // 🔥 creare cont
     const { data, error } = await supabase.auth.signUp({
       email,
       password: parola,
@@ -73,8 +75,7 @@ export default function RegisterPage() {
       return;
     }
 
-    // 🔥 salvare profil
-    const { error: profileError } = await supabase.from("profiles").insert([
+    await supabase.from("profiles").insert([
       {
         id: userId,
         email: email,
@@ -82,15 +83,10 @@ export default function RegisterPage() {
       },
     ]);
 
-    if (profileError) {
-      setEroare("Cont creat, dar profilul nu a fost salvat.");
-      return;
-    }
-
     // 🔥 ștergem invitația
     await supabase.from("invites").delete().eq("code", inviteCode);
 
-    setMesaj("Cont creat cu succes. Te poți loga.");
+    setMesaj("Cont creat cu succes.");
 
     setEmail("");
     setParola("");
@@ -98,15 +94,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={pageWrapper}>
-      <div style={cardStyle}>
-        <h1 style={title}>Creare cont</h1>
+    <div style={wrapper}>
+      <div style={card}>
+        <h1>Creare cont</h1>
 
         <input
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={input}
         />
 
         <input
@@ -114,7 +109,6 @@ export default function RegisterPage() {
           placeholder="Parolă"
           value={parola}
           onChange={(e) => setParola(e.target.value)}
-          style={input}
         />
 
         <input
@@ -122,15 +116,12 @@ export default function RegisterPage() {
           placeholder="Confirmă parola"
           value={confirmareParola}
           onChange={(e) => setConfirmareParola(e.target.value)}
-          style={input}
         />
 
-        {eroare && <p style={error}>{eroare}</p>}
-        {mesaj && <p style={success}>{mesaj}</p>}
+        {eroare && <p style={{ color: "red" }}>{eroare}</p>}
+        {mesaj && <p style={{ color: "green" }}>{mesaj}</p>}
 
-        <button onClick={handleRegister} style={button}>
-          Creează cont
-        </button>
+        <button onClick={handleRegister}>Creează cont</button>
 
         <Link href="/login">Înapoi la login</Link>
       </div>
@@ -138,50 +129,18 @@ export default function RegisterPage() {
   );
 }
 
-/* 🎨 STYLES */
-
-const pageWrapper = {
+const wrapper = {
   minHeight: "100vh",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  background: "#0f172a",
 };
 
-const cardStyle = {
-  background: "#1e293b",
-  padding: "40px",
-  borderRadius: "16px",
+const card = {
   display: "flex",
   flexDirection: "column" as const,
-  gap: "15px",
-  width: "320px",
-};
-
-const title = {
-  color: "white",
-  textAlign: "center" as const,
-};
-
-const input = {
-  padding: "10px",
-  borderRadius: "8px",
-  border: "1px solid #334155",
-};
-
-const button = {
-  padding: "12px",
-  background: "#22c55e",
-  border: "none",
-  borderRadius: "8px",
-  color: "white",
-  cursor: "pointer",
-};
-
-const error = {
-  color: "#dc2626",
-};
-
-const success = {
-  color: "#16a34a",
+  gap: "10px",
+  padding: "30px",
+  border: "1px solid #ccc",
+  borderRadius: "10px",
 };
