@@ -86,12 +86,21 @@ export default function RegisterPage() {
     // 🔥 ștergem invitația
     await supabase.from("invites").delete().eq("code", inviteCode);
 
-    setMesaj("Cont creat cu succes.");
+    setMesaj("Cont creat. Se face login automat...");
 
-    setEmail("");
-    setParola("");
-    setConfirmareParola("");
-  };
+// 🔥 AUTO LOGIN
+const { error: loginError } = await supabase.auth.signInWithPassword({
+  email,
+  password: parola,
+});
+
+if (loginError) {
+  setEroare("Cont creat, dar loginul automat a eșuat.");
+  return;
+}
+
+// 🔥 REDIRECT
+router.push("/dashboard");
 
   return (
     <div style={wrapper}>
