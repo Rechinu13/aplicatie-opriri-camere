@@ -9,7 +9,17 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const generateInvite = async () => {
+  const code = Math.random().toString(36).substring(2, 10);
 
+  await supabase.from("invites").insert([{ code }]);
+
+  const link = `${window.location.origin}/register?invite=${code}`;
+
+  navigator.clipboard.writeText(link);
+
+  alert("Link copiat:\n" + link);
+};
   const fetchUsers = async () => {
     const { data } = await supabase.from("profiles").select("*");
     setUsers(data || []);
@@ -36,7 +46,7 @@ export default function AdminPage() {
     await supabase.from("profiles").update({ role }).eq("id", id);
     fetchUsers();
   };
-
+ 
   const toggleActive = async (id: string, current: boolean) => {
     await supabase
       .from("profiles")
@@ -58,7 +68,11 @@ export default function AdminPage() {
   return (
     <div className="container">
       <h1 style={{ marginBottom: "20px" }}>Admin Panel</h1>
-
+      <div style={{ marginBottom: "20px" }}>
+  <button onClick={generateInvite}>
+    Generează link invitație
+  </button>
+</div>
       {/* 🔍 SEARCH */}
       <div className="card">
         <input

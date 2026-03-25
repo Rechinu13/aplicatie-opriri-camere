@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
+import { useSearchParams } from "next/navigation";
 export default function LoginPage() {
   const router = useRouter();
 
@@ -13,7 +13,8 @@ export default function LoginPage() {
   const [mesaj, setMesaj] = useState("");
   const [eroare, setEroare] = useState("");
   const [confirmareParola, setConfirmareParola] = useState("");
-
+  const params = useSearchParams();
+  const inviteCode = params.get("invite");
   const handleLogin = async () => {
     setMesaj("");
     setEroare("");
@@ -35,6 +36,24 @@ export default function LoginPage() {
   setEroare("");
   setMesaj("");
 
+  // 🔥 verificare invitație
+  if (!inviteCode) {
+    setEroare("Acces doar pe bază de invitație.");
+    return;
+  }
+
+  const { data: invite } = await supabase
+    .from("invites")
+    .select("*")
+    .eq("code", inviteCode)
+    .single();
+
+  if (!invite) {
+    setEroare("Invitație invalidă.");
+    return;
+  }
+
+  // 🔥 validări normale
   if (!email || !parola || !confirmareParola) {
     setEroare("Completează toate câmpurile.");
     return;
@@ -50,6 +69,7 @@ export default function LoginPage() {
     return;
   }
 
+  // 🔥 creare cont
   const { data, error } = await supabase.auth.signUp({
     email,
     password: parola,
@@ -67,7 +87,7 @@ export default function LoginPage() {
     return;
   }
 
-  // salvăm profilul
+  // 🔥 profil
   const { error: profileError } = await supabase.from("profiles").insert([
     {
       id: userId,
@@ -81,7 +101,11 @@ export default function LoginPage() {
     return;
   }
 
+  // 🔥 ștergem invitația (IMPORTANT)
+  await supabase.from("invites").delete().eq("code", inviteCode);
+
   setMesaj("Cont creat cu succes. Te poți loga.");
+
   setEmail("");
   setParola("");
   setConfirmareParola("");
