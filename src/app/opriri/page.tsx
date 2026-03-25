@@ -174,93 +174,62 @@ export default function OpririPage() {
   {opriri.length === 0 ? (
     <p>Nu există opriri</p>
   ) : (
-    opriri.map((o) => (
-      <div
-        key={o.id}
-        style={{
-          marginBottom: "15px",
-          padding: "15px",
-          border: "1px solid #334155",
-          borderRadius: "10px",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div>
-            <p style={{ margin: 0, fontWeight: 600 }}>
-              <Wrench size={16} style={{ marginRight: "6px" }} />
-              {o.machine}
-            </p>
+    opriri.map((o) => {
+      return (
+        <div
+          key={o.id}
+          style={{
+            marginBottom: "15px",
+            padding: "15px",
+            border: "1px solid #334155",
+            borderRadius: "10px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ margin: 0, fontWeight: 600 }}>
+                <Wrench size={16} style={{ marginRight: "6px" }} />
+                {o.machine}
+              </p>
 
-            <p style={{ margin: "4px 0", color: "#475569" }}>
-              {o.reason}
-            </p>
+              <p style={{ margin: "4px 0", color: "#475569" }}>
+                {o.reason}
+              </p>
 
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
-              <Calendar size={12} /> {o.stop_date} &nbsp;
-              <Clock size={12} /> {o.stop_time}
-            </p>
+              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                <Calendar size={12} /> {o.stop_date} &nbsp;
+                <Clock size={12} /> {o.stop_time}
+              </p>
 
-            {o.details && (
-              <p style={{ marginTop: "6px" }}>{o.details}</p>
-            )}
+              {o.details && (
+                <p style={{ marginTop: "6px" }}>{o.details}</p>
+              )}
 
-            {/* 🔥 POZA */}
-            {o.photo_name && (
-              <img
-                src={
-                  supabase.storage
-                    .from("poze")
-                    .getPublicUrl(o.photo_name).data.publicUrl
-                }
-                alt="poza"
-                style={{
-                  width: "120px",
-                  marginTop: "10px",
-                  borderRadius: "10px",
-                }}
-              />
+              {o.photo_name && (
+                <img
+                  src={
+                    supabase.storage
+                      .from("poze")
+                      .getPublicUrl(o.photo_name).data.publicUrl
+                  }
+                  alt="poza"
+                  style={{
+                    width: "120px",
+                    marginTop: "10px",
+                    borderRadius: "10px",
+                  }}
+                />
+              )}
+            </div>
+
+            {role === "admin" && (
+              <button onClick={() => handleDelete(o.id)}>
+                Șterge
+              </button>
             )}
           </div>
-
-          {role === "admin" && (
-            <button onClick={() => handleDelete(o.id)}>
-              Șterge
-            </button>
-          )}
         </div>
-      </div>
-    ))
+      );
+    })
   )}
 </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div>
-                  <p style={{ margin: 0, fontWeight: 600 }}>
-                    <Wrench size={16} style={{ marginRight: "6px" }} />
-                    {o.machine}
-                  </p>
-
-                  <p style={{ margin: "4px 0", color: "#475569" }}>
-                    {o.reason}
-                  </p>
-
-                  <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
-                    <Calendar size={12} /> {o.stop_date} &nbsp;
-                    <Clock size={12} /> {o.stop_time}
-                  </p>
-                </div>
-
-                <div>
-                  {role === "admin" && (
-                    <button onClick={() => handleDelete(o.id)}>
-                      Șterge
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
