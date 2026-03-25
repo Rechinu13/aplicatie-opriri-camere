@@ -113,14 +113,45 @@ export default function DashboardPage() {
   <div className="container">
     <h1 style={{ marginBottom: "20px" }}>Dashboard</h1>
 
-    <button onClick={() => exportToExcel(filtered)}>
-      Export Excel
-    </button>
-
-    <div className="card">
-      <h3>Filtre</h3>
-
+    {/* 🔥 ACTION BAR */}
+    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
       <div style={{ display: "flex", gap: "10px" }}>
+        <button onClick={() => exportToExcel(filtered)}>
+          Export Excel
+        </button>
+      </div>
+    </div>
+
+    {/* 🔥 STATS CARDS */}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gap: "20px",
+        marginBottom: "30px",
+      }}
+    >
+      <div className="card">
+        <p style={{ color: "#94a3b8", margin: 0 }}>Total opriri</p>
+        <h2 style={{ marginTop: "10px" }}>{total}</h2>
+      </div>
+
+      <div className="card">
+        <p style={{ color: "#94a3b8", margin: 0 }}>Top mașină</p>
+        <h2 style={{ marginTop: "10px" }}>{topMachine}</h2>
+      </div>
+
+      <div className="card">
+        <p style={{ color: "#94a3b8", margin: 0 }}>Top motiv</p>
+        <h2 style={{ marginTop: "10px" }}>{topReason}</h2>
+      </div>
+    </div>
+
+    {/* 🔥 FILTRE */}
+    <div className="card" style={{ marginBottom: "30px" }}>
+      <h3 style={{ marginTop: 0 }}>Filtre</h3>
+
+      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
         <input
           type="date"
           value={startDate}
@@ -145,17 +176,41 @@ export default function DashboardPage() {
       </div>
     </div>
 
-    <div className="card">
-      <h3>Opriri pe zile</h3>
+    {/* 🔥 GRAFICE GRID */}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: "20px",
+      }}
+    >
+      {/* ZILE */}
+      <div className="card">
+        <h3>Opriri pe zile</h3>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartDataDays}>
-          <XAxis dataKey="day" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="count" fill="#22c55e" />
-        </BarChart>
-      </ResponsiveContainer>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartDataDays}>
+            <XAxis dataKey="day" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#22c55e" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* MASINI */}
+      <div className="card">
+        <h3>Opriri pe mașini</h3>
+
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartDataMachines}>
+            <XAxis dataKey="machine" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#3b82f6" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   </div>
 );
