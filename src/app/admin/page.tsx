@@ -12,7 +12,12 @@ export default function AdminPage() {
   const generateInvite = async () => {
   const code = Math.random().toString(36).substring(2, 10);
 
-  await supabase.from("invites").insert([{ code }]);
+  const { error } = await supabase.from("invites").insert([{ code }]);
+
+  if (error) {
+    alert("Eroare la generare invitație: " + error.message);
+    return;
+  }
 
   const link = `${window.location.origin}/register?invite=${code}`;
 
