@@ -31,7 +31,6 @@ export default function OpririPage() {
   const [operator, setOperator] = useState("");
   const [motiv, setMotiv] = useState("");
   const [detalii, setDetalii] = useState("");
-
   const [mesaj, setMesaj] = useState("");
 
   const fetchOpriri = async () => {
@@ -118,15 +117,16 @@ export default function OpririPage() {
 
   if (loading) return <p className="container">Se încarcă...</p>;
   if (!user) return <p className="container">Nu ești logat</p>;
-  const th = {
-  padding: "10px",
-  borderBottom: "1px solid #1e293b",
-};
 
-const td = {
-  padding: "10px",
-  borderBottom: "1px solid #1e293b",
-};
+  const th = {
+    padding: "10px",
+    borderBottom: "1px solid #1e293b",
+  };
+
+  const td = {
+    padding: "10px",
+    borderBottom: "1px solid #1e293b",
+  };
 
   return (
     <div className="container">
@@ -180,91 +180,78 @@ const td = {
             </div>
           </div>
         )}
-       
 
-{/* TABEL */}
-<div className="card">
-  <h3>Opriri existente</h3>
+        {/* TABEL */}
+        <div className="card">
+          <h3>Opriri existente</h3>
 
-  {opriri.length === 0 ? (
-    <p>Nu există opriri</p>
-  ) : (
-    <table
-      style={{
-        width: "100%",
-        marginTop: "15px",
-        borderCollapse: "collapse",
-      }}
-    >
-      <thead>
-        <tr style={{ textAlign: "left", color: "#94a3b8" }}>
-          <th style={th}>Data</th>
-          <th style={th}>Ora</th>
-          <th style={th}>Mașină</th>
-          <th style={th}>Motiv</th>
-          <th style={th}>Operator</th>
-          <th style={th}>Poză</th>
-          {role === "admin" && <th style={th}>Acțiuni</th>}
-        </tr>
-      </thead>
+          {opriri.length === 0 ? (
+            <p>Nu există opriri</p>
+          ) : (
+            <table
+              style={{
+                width: "100%",
+                marginTop: "15px",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr style={{ textAlign: "left", color: "#94a3b8" }}>
+                  <th style={th}>Data</th>
+                  <th style={th}>Ora</th>
+                  <th style={th}>Mașină</th>
+                  <th style={th}>Motiv</th>
+                  <th style={th}>Operator</th>
+                  <th style={th}>Poză</th>
+                  {role === "admin" && <th style={th}>Acțiuni</th>}
+                </tr>
+              </thead>
 
-      <tbody>
-        {opriri.map((o) => (
-          <tr
-            key={o.id}
-            style={{ transition: "0.2s" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "#020617")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
-          >
-            <td style={td}>{o.stop_date}</td>
-            <td style={td}>{o.stop_time}</td>
-            <td style={td}>{o.machine}</td>
-            <td style={td}>{o.reason}</td>
-            <td style={td}>{o.operator_name}</td>
+              <tbody>
+                {opriri.map((o) => (
+                  <tr key={o.id}>
+                    <td style={td}>{o.stop_date}</td>
+                    <td style={td}>{o.stop_time}</td>
+                    <td style={td}>{o.machine}</td>
+                    <td style={td}>{o.reason}</td>
+                    <td style={td}>{o.operator_name}</td>
 
-            <td style={td}>
-              {o.photo_name ? (
-                <img
-                  src={
-                    supabase.storage
-                      .from("poze")
-                      .getPublicUrl(o.photo_name).data.publicUrl
-                  }
-                  style={{
-                    width: "60px",
-                    borderRadius: "6px",
-                    border: "1px solid #1e293b",
-                  }}
-                />
-              ) : (
-                "-"
-              )}
-            </td>
+                    <td style={td}>
+                      {o.photo_name ? (
+                        <img
+                          src={
+                            supabase.storage
+                              .from("poze")
+                              .getPublicUrl(o.photo_name).data.publicUrl
+                          }
+                          style={{ width: "60px", borderRadius: "6px" }}
+                        />
+                      ) : (
+                        "-"
+                      )}
+                    </td>
 
-            {role === "admin" && (
-              <td style={td}>
-                <button
-                  onClick={() => handleDelete(o.id)}
-                  style={{
-                    background: "#dc2626",
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                  }}
-                >
-                  Șterge
-                </button>
-              </td>
-            )}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
- </div>
-</div>
+                    {role === "admin" && (
+                      <td style={td}>
+                        <button
+                          onClick={() => handleDelete(o.id)}
+                          style={{
+                            background: "#dc2626",
+                            padding: "6px 10px",
+                            borderRadius: "6px",
+                          }}
+                        >
+                          Șterge
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
