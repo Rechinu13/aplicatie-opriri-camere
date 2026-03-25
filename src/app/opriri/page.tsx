@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { getUserWithRole } from "@/lib/getUser";
-import { Wrench, Calendar, Clock } from "lucide-react";
 
 type Oprire = {
   id: number;
@@ -14,7 +13,7 @@ type Oprire = {
   operator_name: string;
   reason: string;
   details: string;
-  photo_name?: string; // 🔥 FIX IMPORTANT
+  photo_name: string;
 };
 
 export default function OpririPage() {
@@ -69,7 +68,7 @@ export default function OpririPage() {
       return;
     }
 
-    let photo_name: string | null = null;
+    let photo_name = null;
 
     if (selectedFile) {
       const fileName = `${Date.now()}-${selectedFile.name}`;
@@ -79,7 +78,7 @@ export default function OpririPage() {
         .upload(fileName, selectedFile);
 
       if (error) {
-        setMesaj("Eroare upload poză");
+        setMesaj(error.message);
         return;
       }
 
@@ -95,7 +94,7 @@ export default function OpririPage() {
         operator_name: operator,
         reason: motiv,
         details: detalii,
-        photo_name,
+        photo_name: photo_name,
       },
     ]);
 
@@ -117,139 +116,121 @@ export default function OpririPage() {
     await fetchOpriri();
   };
 
-  if (loading) return <p style={{ padding: "30px" }}>Se încarcă...</p>;
-
-  if (!user) {
-    return (
-      <div style={{ padding: "40px" }}>
-        <h1>Nu ești logat</h1>
-      </div>
-    );
-  }
+  if (loading) return <p className="container">Se încarcă...</p>;
+  if (!user) return <p className="container">Nu ești logat</p>;
 
   return (
-  <div className="container">
-    <h1 style={{ marginBottom: "20px" }}>Opriri</h1>
+    <div className="container">
+      <h1 style={{ marginBottom: "20px" }}>Opriri</h1>
 
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: "20px",
-      }}
-    >
-      {/* 🔥 FORMULAR */}
-      {role !== "supervisor" && (
-        <div className="card">
-          <h3>Adaugă oprire</h3>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "20px",
+        }}
+      >
+        {/* FORMULAR */}
+        {role !== "supervisor" && (
+          <div className="card">
+            <h3>Adaugă oprire</h3>
 
-          <div style={{ display: "grid", gap: "10px" }}>
-            <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
-            <input type="time" value={ora} onChange={(e) => setOra(e.target.value)} />
+            <div style={{ display: "grid", gap: "10px" }}>
+              <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
+              <input type="time" value={ora} onChange={(e) => setOra(e.target.value)} />
 
-            <select value={schimb} onChange={(e) => setSchimb(e.target.value)}>
-              <option>Schimb 1</option>
-              <option>Schimb 2</option>
-              <option>Schimb 3</option>
-            </select>
+              <select value={schimb} onChange={(e) => setSchimb(e.target.value)}>
+                <option>Schimb 1</option>
+                <option>Schimb 2</option>
+                <option>Schimb 3</option>
+              </select>
 
-            <input placeholder="Mașină" value={masina} onChange={(e) => setMasina(e.target.value)} />
-            <input placeholder="Operator" value={operator} onChange={(e) => setOperator(e.target.value)} />
-            <input placeholder="Motiv" value={motiv} onChange={(e) => setMotiv(e.target.value)} />
+              <input placeholder="Mașină" value={masina} onChange={(e) => setMasina(e.target.value)} />
+              <input placeholder="Operator" value={operator} onChange={(e) => setOperator(e.target.value)} />
+              <input placeholder="Motiv" value={motiv} onChange={(e) => setMotiv(e.target.value)} />
 
-            <textarea
-              placeholder="Detalii"
-              value={detalii}
-              onChange={(e) => setDetalii(e.target.value)}
-            />
+              <textarea
+                placeholder="Detalii"
+                value={detalii}
+                onChange={(e) => setDetalii(e.target.value)}
+              />
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  setSelectedFile(e.target.files[0]);
-                }
-              }}
-            />
-
-            <button
-              onClick={handleSave}
-              style={{
-                background: "#22c55e",
-                marginTop: "10px",
-              }}
-            >
-              Adaugă oprire
-            </button>
-
-            {mesaj && <p>{mesaj}</p>}
-          </div>
-        </div>
-      )}
-
-      {/* 🔥 LISTA */}
-      <div className="card" style={{ marginTop: "20px" }}>
-  <h3>Opriri existente</h3>
-
-  {opriri.length === 0 ? (
-    <p>Nu există opriri</p>
-  ) : (
-    <table style={{ width: "100%", marginTop: "15px", borderCollapse: "collapse" }}>
-      <thead>
-        <tr style={{ textAlign: "left", color: "#94a3b8" }}>
-          <th>Data</th>
-          <th>Ora</th>
-          <th>Mașină</th>
-          <th>Motiv</th>
-          <th>Operator</th>
-          <th>Poză</th>
-          {role === "admin" && <th>Acțiuni</th>}
-        </tr>
-      </thead>
-
-      <tbody>
-        {opriri.map((o) => (
-          <tr
-            key={o.id}
-            style={{
-              borderTop: "1px solid #1e293b",
-            }}
-          >
-            <td>{o.stop_date}</td>
-            <td>{o.stop_time}</td>
-            <td>{o.machine}</td>
-            <td>{o.reason}</td>
-            <td>{o.operator_name}</td>
-
-            <td>
-              {o.photo_name && (
-                <img
-                  src={
-                    supabase.storage
-                      .from("poze")
-                      .getPublicUrl(o.photo_name).data.publicUrl
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    setSelectedFile(e.target.files[0]);
                   }
-                  style={{ width: "60px", borderRadius: "6px" }}
-                />
-              )}
-            </td>
+                }}
+              />
 
-            {role === "admin" && (
-              <td>
-                <button
-                  onClick={() => handleDelete(o.id)}
-                  style={{ background: "#dc2626" }}
-                >
-                  Șterge
-                </button>
-              </td>
-            )}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div>
-);
+              <button onClick={handleSave}>Adaugă oprire</button>
+
+              {mesaj && <p>{mesaj}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* TABEL */}
+        <div className="card">
+          <h3>Opriri existente</h3>
+
+          {opriri.length === 0 ? (
+            <p>Nu există opriri</p>
+          ) : (
+            <table style={{ width: "100%", marginTop: "15px" }}>
+              <thead>
+                <tr style={{ textAlign: "left", color: "#94a3b8" }}>
+                  <th>Data</th>
+                  <th>Ora</th>
+                  <th>Mașină</th>
+                  <th>Motiv</th>
+                  <th>Operator</th>
+                  <th>Poză</th>
+                  {role === "admin" && <th>Acțiuni</th>}
+                </tr>
+              </thead>
+
+              <tbody>
+                {opriri.map((o) => (
+                  <tr key={o.id}>
+                    <td>{o.stop_date}</td>
+                    <td>{o.stop_time}</td>
+                    <td>{o.machine}</td>
+                    <td>{o.reason}</td>
+                    <td>{o.operator_name}</td>
+
+                    <td>
+                      {o.photo_name && (
+                        <img
+                          src={
+                            supabase.storage
+                              .from("poze")
+                              .getPublicUrl(o.photo_name).data.publicUrl
+                          }
+                          style={{ width: "60px" }}
+                        />
+                      )}
+                    </td>
+
+                    {role === "admin" && (
+                      <td>
+                        <button
+                          onClick={() => handleDelete(o.id)}
+                          style={{ background: "#dc2626" }}
+                        >
+                          Șterge
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
