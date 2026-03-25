@@ -4,16 +4,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { getUserWithRole } from "@/lib/getUser";
 
-type Profile = {
-  id: string;
-  email: string;
-  role: string;
-};
-
 export default function AdminPage() {
-  const [role, setRole] = useState<string | null>(null);
-  const [users, setUsers] = useState<Profile[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [search, setSearch] = useState("");
 
   const fetchUsers = async () => {
     const { data } = await supabase.from("profiles").select("*");
@@ -24,71 +19,109 @@ export default function AdminPage() {
     const init = async () => {
       const result = await getUserWithRole();
 
-      if (!result) {
+      if (!result || result.role !== "admin") {
         setLoading(false);
         return;
       }
 
-      setRole(result.role);
-
-      if (result.role === "admin") {
-        await fetchUsers();
-      }
-
+      setCurrentUser(result.user);
+      await fetchUsers();
       setLoading(false);
     };
 
     init();
   }, []);
 
-  const updateRole = async (id: string, newRole: string) => {
-    await supabase
-      .from("profiles")
-      .update({ role: newRole })
-      .eq("id", id);
-
-    await fetchUsers();
+  const changeRole = async (id: string, role: string) => {
+    await supabase.from("profiles").update({ role }).eq("id", id);
+    fetchUsers();
   };
 
-  if (loading) return <p>Se încarcă...</p>;
+  const toggleActive = async (id: string, current: boolean) => {
+    await supabase
+      .from("profiles")
+      .update({ is_active: !current })
+      .eq("id", id);
 
-  if (role !== "admin") {
-    return <p>Acces interzis</p>;
-  }
+    fetchUsers();
+  };
+
+  if (loading) return <p className="container">Se încarcă...</p>;
+
+  if (!currentUser)
+    return <p className="container">Nu ai acces</p>;
+
+  const filteredUsers = users.filter((u) =>
+    u.email?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div style={{ padding: "40px", maxWidth: "900px", margin: "auto" }}>
-      <h1>Admin Panel</h1>
+    <div className="container">
+      <h1 style={{ marginBottom: "20px" }}>Admin Panel</h1>
 
+      {/* 🔍 SEARCH */}
+      <div className="card">
+        <input
+          placeholder="Caută utilizator..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* 👥 USERS */}
       <div className="card">
         <h3>Utilizatori</h3>
 
-        {users.map((u) => (
-          <div
-            key={u.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "10px",
-              padding: "10px",
-              borderBottom: "1px solid #334155",
-            }}
-          >
-            <div>
-              <p style={{ margin: 0 }}>{u.email}</p>
-              <small>{u.id}</small>
-            </div>
-
-            <select
-              value={u.role}
-              onChange={(e) => updateRole(u.id, e.target.value)}
+        {filteredUsers.length === 0 ? (
+          <p>Nu există utilizatori</p>
+        ) : (
+          filteredUsers.map((u) => (
+            <div
+              key={u.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "15px",
+                marginBottom: "10px",
+                background: "#0f172a",
+                borderRadius: "10px",
+                alignItems: "center",
+              }}
             >
-              <option value="operator">Operator</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-        ))}
+              <div>
+                <p style={{ margin: 0, fontWeight: 600 }}>
+                  {u.email}
+                </p>
+
+                <p style={{ margin: 0, fontSize: "12px", color: "#94a3b8" }}>
+                  Rol: {u.role}
+                </p>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px" }}>
+                {/* ROLE */}
+                <select
+                  value={u.role}
+                  onChange={(e) => changeRole(u.id, e.target.value)}
+                >
+                  <option>operator</option>
+                  <option>supervisor</option>
+                  <option>admin</option>
+                </select>
+
+                {/* STATUS */}
+                <button
+                  onClick={() => toggleActive(u.id, u.is_active)}
+                  style={{
+                    background: u.is_active ? "#16a34a" : "#dc2626",
+                  }}
+                >
+                  {u.is_active ? "Activ" : "Blocat"}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
