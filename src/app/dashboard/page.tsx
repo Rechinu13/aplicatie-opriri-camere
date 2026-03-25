@@ -122,16 +122,16 @@ if (selectedMachine) {
 
       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
         <input
-          date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
+  type="date"
+  value={startDate}
+  onChange={(e) => setStartDate(e.target.value)}
+/>
 
         <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
+  type="date"
+  value={endDate}
+  onChange={(e) => setEndDate(e.target.value)}
+/>
 
         <select
           value={selectedMachine}
