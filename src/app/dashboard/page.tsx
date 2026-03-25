@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { getUserWithRole } from "@/lib/getUser";
-
 import {
   BarChart,
   Bar,
@@ -25,9 +24,9 @@ export default function DashboardPage() {
   const [role, setRole] = useState<string | null>(null);
   const [opriri, setOpriri] = useState<Oprire[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedMachine, setSelectedMachine] = useState("");
 
   useEffect(() => {
@@ -54,25 +53,24 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) return <p>Se încarcă...</p>;
-
   if (!user) return <p>Nu ești logat</p>;
 
   // 🔥 FILTRARE
   let filtered = opriri;
 
-if (startDate) {
-  filtered = filtered.filter(o => o.stop_date >= startDate);
-}
+  if (startDate) {
+    filtered = filtered.filter((o) => o.stop_date >= startDate);
+  }
 
-if (endDate) {
-  filtered = filtered.filter(o => o.stop_date <= endDate);
-}
+  if (endDate) {
+    filtered = filtered.filter((o) => o.stop_date <= endDate);
+  }
 
-if (selectedMachine) {
-  filtered = filtered.filter(o => o.machine === selectedMachine);
-}
+  if (selectedMachine) {
+    filtered = filtered.filter((o) => o.machine === selectedMachine);
+  }
 
-  // 📊 GRAFIC ZILE
+  // 📊 GRAFICE
   const byDay: Record<string, number> = {};
   filtered.forEach((o) => {
     byDay[o.stop_date] = (byDay[o.stop_date] || 0) + 1;
@@ -83,7 +81,6 @@ if (selectedMachine) {
     count,
   }));
 
-  // 📊 GRAFIC MASINI
   const byMachine: Record<string, number> = {};
   filtered.forEach((o) => {
     byMachine[o.machine] = (byMachine[o.machine] || 0) + 1;
@@ -96,7 +93,6 @@ if (selectedMachine) {
     })
   );
 
-  // 📊 STATS
   const total = filtered.length;
 
   const topMachine =
@@ -113,80 +109,81 @@ if (selectedMachine) {
   const uniqueMachines = [...new Set(opriri.map((o) => o.machine))];
 
   return (
-  <div style={{ padding: "40px", maxWidth: "1100px", margin: "auto" }}>
-    <h1 style={{ marginBottom: "30px" }}>Dashboard</h1>
+    <div style={{ padding: "40px", maxWidth: "1100px", margin: "auto" }}>
+      <h1 style={{ marginBottom: "30px" }}>Dashboard</h1>
 
-    {/* 🔥 FILTRE - SUS */}
-    <div className="card" style={{ marginBottom: "30px" }}>
-      <h3 style={{ marginTop: 0 }}>Filtre</h3>
+      {/* 🔥 FILTRE */}
+      <div className="card" style={{ marginBottom: "30px" }}>
+        <h3>Filtre</h3>
 
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <input
-  type="date"
-  value={startDate}
-  onChange={(e) => setStartDate(e.target.value)}
-/>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
 
-        <input
-  type="date"
-  value={endDate}
-  onChange={(e) => setEndDate(e.target.value)}
-/>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
 
-        <select
-          value={selectedMachine}
-          onChange={(e) => setSelectedMachine(e.target.value)}
-        >
-          <option value="">Toate mașinile</option>
-          {uniqueMachines.map((m) => (
-            <option key={m}>{m}</option>
-          ))}
-        </select>
+          <select
+            value={selectedMachine}
+            onChange={(e) => setSelectedMachine(e.target.value)}
+          >
+            <option value="">Toate mașinile</option>
+            {uniqueMachines.map((m) => (
+              <option key={m}>{m}</option>
+            ))}
+          </select>
+        </div>
       </div>
-    </div>
 
-    {/* 📊 STATS */}
-    <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
+      {/* 📊 STATS */}
+      <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
+        <div className="card">
+          <p>Total opriri</p>
+          <h2>{total}</h2>
+        </div>
+
+        <div className="card">
+          <p>Top mașină</p>
+          <h2>{topMachine}</h2>
+        </div>
+
+        <div className="card">
+          <p>Top motiv</p>
+          <h2>{topReason}</h2>
+        </div>
+      </div>
+
+      {/* 📈 GRAFIC ZILE */}
+      <div className="card" style={{ marginBottom: "30px" }}>
+        <h3>Opriri pe zile</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartDataDays}>
+            <XAxis dataKey="day" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 📊 GRAFIC MASINI */}
       <div className="card">
-        <p style={{ margin: 0, color: "#94a3b8" }}>Total opriri</p>
-        <h2>{total}</h2>
-      </div>
-
-      <div className="card">
-        <p style={{ margin: 0, color: "#94a3b8" }}>Top mașină</p>
-        <h2>{topMachine}</h2>
-      </div>
-
-      <div className="card">
-        <p style={{ margin: 0, color: "#94a3b8" }}>Top motiv</p>
-        <h2>{topReason}</h2>
+        <h3>Opriri pe mașini</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartDataMachines}>
+            <XAxis dataKey="machine" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
-
-    {/* 📈 GRAFIC ZILE */}
-    <div className="card" style={{ marginBottom: "30px" }}>
-      <h3>Opriri pe zile</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartDataDays}>
-          <XAxis dataKey="day" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="count" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-
-    {/* 📊 GRAFIC MASINI */}
-    <div className="card">
-      <h3>Opriri pe mașini</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartDataMachines}>
-          <XAxis dataKey="machine" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="count" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-);
+  );
+}
