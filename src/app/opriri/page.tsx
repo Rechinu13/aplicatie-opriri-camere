@@ -264,7 +264,7 @@ const td = {
       </tbody>
     </table>
   )}
+ </div>
 </div>
-    </div>
   );
 }
