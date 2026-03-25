@@ -189,63 +189,67 @@ export default function OpririPage() {
       )}
 
       {/* 🔥 LISTA */}
-      <div className="card">
-        <h3>Opriri existente</h3>
+      <div className="card" style={{ marginTop: "20px" }}>
+  <h3>Opriri existente</h3>
 
-        {opriri.length === 0 ? (
-          <p>Nu există opriri</p>
-        ) : (
-          opriri.map((o) => (
-            <div
-              key={o.id}
-              style={{
-                marginBottom: "15px",
-                padding: "15px",
-                background: "#0f172a",
-                borderRadius: "10px",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div>
-                  <p style={{ margin: 0, fontWeight: 600 }}>{o.machine}</p>
-                  <p style={{ margin: "5px 0", color: "#94a3b8" }}>{o.reason}</p>
+  {opriri.length === 0 ? (
+    <p>Nu există opriri</p>
+  ) : (
+    <table style={{ width: "100%", marginTop: "15px", borderCollapse: "collapse" }}>
+      <thead>
+        <tr style={{ textAlign: "left", color: "#94a3b8" }}>
+          <th>Data</th>
+          <th>Ora</th>
+          <th>Mașină</th>
+          <th>Motiv</th>
+          <th>Operator</th>
+          <th>Poză</th>
+          {role === "admin" && <th>Acțiuni</th>}
+        </tr>
+      </thead>
 
-                  <p style={{ fontSize: "12px", color: "#64748b" }}>
-                    {o.stop_date} • {o.stop_time}
-                  </p>
+      <tbody>
+        {opriri.map((o) => (
+          <tr
+            key={o.id}
+            style={{
+              borderTop: "1px solid #1e293b",
+            }}
+          >
+            <td>{o.stop_date}</td>
+            <td>{o.stop_time}</td>
+            <td>{o.machine}</td>
+            <td>{o.reason}</td>
+            <td>{o.operator_name}</td>
 
-                  {o.details && <p>{o.details}</p>}
+            <td>
+              {o.photo_name && (
+                <img
+                  src={
+                    supabase.storage
+                      .from("poze")
+                      .getPublicUrl(o.photo_name).data.publicUrl
+                  }
+                  style={{ width: "60px", borderRadius: "6px" }}
+                />
+              )}
+            </td>
 
-                  {o.photo_name && (
-                    <img
-                      src={
-                        supabase.storage
-                          .from("poze")
-                          .getPublicUrl(o.photo_name).data.publicUrl
-                      }
-                      style={{
-                        width: "150px",
-                        marginTop: "10px",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  )}
-                </div>
-
-                {role === "admin" && (
-                  <button
-                    onClick={() => handleDelete(o.id)}
-                    style={{ background: "#dc2626" }}
-                  >
-                    Șterge
-                  </button>
-                )}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  </div>
+            {role === "admin" && (
+              <td>
+                <button
+                  onClick={() => handleDelete(o.id)}
+                  style={{ background: "#dc2626" }}
+                >
+                  Șterge
+                </button>
+              </td>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
 );
 }
