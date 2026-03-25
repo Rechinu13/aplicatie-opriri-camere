@@ -5,8 +5,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useSearchParams } from "next/navigation";
-export default function LoginPage() {
-export const dynamic = "force-dynamic";
+export default function LoginPage() 
+export const dynamic = "force-dynamic";{
+
   const router = useRouter();
 
   const [email, setEmail] = useState("");
