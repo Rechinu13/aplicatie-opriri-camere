@@ -28,17 +28,20 @@ export default function Navbar() {
 
   return (
     <div style={nav}>
-      <div style={logo}>QC Tracker</div>
+      <div style={logo}>QC Stop Tracker</div>
 
       <div style={links}>
-        <Link href="/">Home</Link>
-        <Link href="/dashboard">Dashboard</Link>
-        <Link href="/opriri">Opriri</Link>
-        {role === "admin" && <Link href="/admin">Admin</Link>}
+        <Link href="/" style={link}>Home</Link>
+        <Link href="/dashboard" style={link}>Dashboard</Link>
+        <Link href="/opriri" style={link}>Opriri</Link>
+        {role === "admin" && (
+          <Link href="/admin" style={link}>Admin</Link>
+        )}
       </div>
 
       <div style={right}>
         {email && <span style={badge}>{email}</span>}
+
         <button onClick={handleLogout} style={logout}>
           Logout
         </button>
@@ -52,24 +55,31 @@ const nav = {
   justifyContent: "space-between",
   alignItems: "center",
   padding: "16px 30px",
-  background: "#0f172a",
-  color: "white",
+  background: "#020617",
+  borderBottom: "1px solid #1e293b",
 };
 
 const logo = {
   fontWeight: 700,
   fontSize: "18px",
+  color: "#e2e8f0",
 };
 
 const links = {
   display: "flex",
-  gap: "20px",
+  gap: "25px",
+};
+
+const link = {
+  color: "#94a3b8",
+  textDecoration: "none",
+  fontWeight: 500,
 };
 
 const right = {
   display: "flex",
   alignItems: "center",
-  gap: "10px",
+  gap: "12px",
 };
 
 const badge = {
@@ -77,8 +87,14 @@ const badge = {
   padding: "6px 12px",
   borderRadius: "999px",
   fontSize: "12px",
+  color: "#cbd5f5",
 };
 
 const logout = {
-  background: "#ef4444",
+  background: "#dc2626",
+  color: "white",
+  padding: "8px 14px",
+  borderRadius: "8px",
+  border: "none",
+  cursor: "pointer",
 };

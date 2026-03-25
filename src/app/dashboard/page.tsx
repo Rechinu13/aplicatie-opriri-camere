@@ -110,31 +110,17 @@ export default function DashboardPage() {
   const uniqueMachines = [...new Set(opriri.map((o) => o.machine))];
 
   return (
-  <div style={{ padding: "40px", maxWidth: "1100px", margin: "auto" }}>
-    <h1 style={{ marginBottom: "10px" }}>Dashboard</h1>
+  <div className="container">
+    <h1 style={{ marginBottom: "20px" }}>Dashboard</h1>
 
-    {/* 🔥 BUTON EXPORT */}
-    <button
-      onClick={() => exportToExcel(filtered)}
-      style={{
-        marginBottom: "20px",
-        padding: "10px 16px",
-        background: "#22c55e",
-        border: "none",
-        borderRadius: "10px",
-        color: "white",
-        fontWeight: "600",
-        cursor: "pointer",
-      }}
-    >
+    <button onClick={() => exportToExcel(filtered)}>
       Export Excel
     </button>
 
-    {/* 🔥 FILTRE */}
-    <div className="card" style={{ marginBottom: "30px" }}>
+    <div className="card">
       <h3>Filtre</h3>
 
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "10px" }}>
         <input
           type="date"
           value={startDate}
@@ -159,48 +145,18 @@ export default function DashboardPage() {
       </div>
     </div>
 
-    {/* 📊 STATS */}
-    <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
-      <div className="card">
-        <p>Total opriri</p>
-        <h2>{total}</h2>
-      </div>
-
-      <div className="card">
-        <p>Top mașină</p>
-        <h2>{topMachine}</h2>
-      </div>
-
-      <div className="card">
-        <p>Top motiv</p>
-        <h2>{topReason}</h2>
-      </div>
-    </div>
-
-    {/* 📈 GRAFIC ZILE */}
-    <div className="card" style={{ marginBottom: "30px" }}>
+    <div className="card">
       <h3>Opriri pe zile</h3>
+
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartDataDays}>
           <XAxis dataKey="day" />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="count" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-
-    {/* 📊 GRAFIC MASINI */}
-    <div className="card">
-      <h3>Opriri pe mașini</h3>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartDataMachines}>
-          <XAxis dataKey="machine" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="count" />
+          <Bar dataKey="count" fill="#22c55e" />
         </BarChart>
       </ResponsiveContainer>
     </div>
   </div>
 );
+}
