@@ -118,6 +118,15 @@ export default function OpririPage() {
 
   if (loading) return <p className="container">Se încarcă...</p>;
   if (!user) return <p className="container">Nu ești logat</p>;
+  const th = {
+  padding: "10px",
+  borderBottom: "1px solid #1e293b",
+};
+
+const td = {
+  padding: "10px",
+  borderBottom: "1px solid #1e293b",
+};
 
   return (
     <div className="container">
@@ -171,15 +180,7 @@ export default function OpririPage() {
             </div>
           </div>
         )}
-        const th = {
-  padding: "10px",
-  borderBottom: "1px solid #1e293b",
-};
-
-const td = {
-  padding: "10px",
-  borderBottom: "1px solid #1e293b",
-};
+       
 
 {/* TABEL */}
 <div className="card">
