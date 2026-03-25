@@ -172,26 +172,27 @@ export default function OpririPage() {
         <h3>Opriri existente</h3>
 
         {opriri.length === 0 ? (
-          <p>Nu există opriri</p>
-        ) : (
-          {opriri.map((o) => (
-  <div key={o.id} style={{ marginBottom: "20px" }}>
-    <p><strong>{o.machine}</strong></p>
-    <p>{o.reason}</p>
+  <p>Nu există opriri</p>
+) : (
+  opriri.map((o) => (
+    <div key={o.id} style={{ marginBottom: "20px" }}>
+      <p><strong>{o.machine}</strong></p>
+      <p>{o.reason}</p>
 
-    {o.photo_name && (
-      <img
-        src={
-          supabase.storage
-            .from("poze")
-            .getPublicUrl(o.photo_name).data.publicUrl
-        }
-        alt="poza"
-        style={{ width: "120px", borderRadius: "10px" }}
-      />
-    )}
-  </div>
-))}
+      {o.photo_name && (
+        <img
+          src={
+            supabase.storage
+              .from("poze")
+              .getPublicUrl(o.photo_name).data.publicUrl
+          }
+          alt="poza"
+          style={{ width: "120px", borderRadius: "10px" }}
+        />
+      )}
+    </div>
+  ))
+)}
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <div>
                   <p style={{ margin: 0, fontWeight: 600 }}>
