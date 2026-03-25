@@ -14,6 +14,7 @@ type Oprire = {
   operator_name: string;
   reason: string;
   details: string;
+  photo_name?: string; // 🔥 FIX IMPORTANT
 };
 
 export default function OpririPage() {
@@ -23,6 +24,7 @@ export default function OpririPage() {
 
   const [opriri, setOpriri] = useState<Oprire[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const [data, setData] = useState("");
   const [ora, setOra] = useState("");
   const [schimb, setSchimb] = useState("Schimb 1");
@@ -62,53 +64,53 @@ export default function OpririPage() {
   }, []);
 
   const handleSave = async () => {
-  if (!data || !ora || !masina || !operator || !motiv) {
-    setMesaj("Completează toate câmpurile!");
-    return;
-  }
-
-  let photo_name = null;
-
-  if (selectedFile) {
-    const fileName = `${Date.now()}-${selectedFile.name}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("poze")
-      .upload(fileName, selectedFile);
-
-    if (uploadError) {
-      setMesaj("Eroare upload poză");
+    if (!data || !ora || !masina || !operator || !motiv) {
+      setMesaj("Completează toate câmpurile!");
       return;
     }
 
-    photo_name = fileName;
-  }
+    let photo_name: string | null = null;
 
-  await supabase.from("assembly_stops").insert([
-    {
-      stop_date: data,
-      stop_time: ora,
-      shift: schimb,
-      machine: masina,
-      operator_name: operator,
-      reason: motiv,
-      details: detalii,
-      photo_name: photo_name,
-    },
-  ]);
+    if (selectedFile) {
+      const fileName = `${Date.now()}-${selectedFile.name}`;
 
-  setMesaj("Salvat ✔️");
+      const { error } = await supabase.storage
+        .from("poze")
+        .upload(fileName, selectedFile);
 
-  setData("");
-  setOra("");
-  setMasina("");
-  setOperator("");
-  setMotiv("");
-  setDetalii("");
-  setSelectedFile(null);
+      if (error) {
+        setMesaj("Eroare upload poză");
+        return;
+      }
 
-  await fetchOpriri();
-};
+      photo_name = fileName;
+    }
+
+    await supabase.from("assembly_stops").insert([
+      {
+        stop_date: data,
+        stop_time: ora,
+        shift: schimb,
+        machine: masina,
+        operator_name: operator,
+        reason: motiv,
+        details: detalii,
+        photo_name,
+      },
+    ]);
+
+    setMesaj("Salvat ✔️");
+
+    setData("");
+    setOra("");
+    setMasina("");
+    setOperator("");
+    setMotiv("");
+    setDetalii("");
+    setSelectedFile(null);
+
+    await fetchOpriri();
+  };
 
   const handleDelete = async (id: number) => {
     await supabase.from("assembly_stops").delete().eq("id", id);
@@ -152,15 +154,17 @@ export default function OpririPage() {
             value={detalii}
             onChange={(e) => setDetalii(e.target.value)}
           />
+
           <input
-  type="file"
-  accept="image/*"
-  onChange={(e) => {
-    if (e.target.files?.[0]) {
-      setSelectedFile(e.target.files[0]);
-    }
-  }}
-/>
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files?.[0]) {
+                setSelectedFile(e.target.files[0]);
+              }
+            }}
+          />
+
           <button onClick={handleSave}>Adaugă</button>
 
           {mesaj && <p>{mesaj}</p>}
@@ -169,67 +173,68 @@ export default function OpririPage() {
 
       {/* LISTA */}
       <div className="card" style={{ marginTop: "20px" }}>
-  <h3>Opriri existente</h3>
+        <h3>Opriri existente</h3>
 
-  {opriri.length === 0 ? (
-    <p>Nu există opriri</p>
-  ) : (
-    opriri.map((o) => {
-      return (
-        <div
-          key={o.id}
-          style={{
-            marginBottom: "15px",
-            padding: "15px",
-            border: "1px solid #334155",
-            borderRadius: "10px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div>
-              <p style={{ margin: 0, fontWeight: 600 }}>
-                <Wrench size={16} style={{ marginRight: "6px" }} />
-                {o.machine}
-              </p>
+        {opriri.length === 0 ? (
+          <p>Nu există opriri</p>
+        ) : (
+          opriri.map((o) => (
+            <div
+              key={o.id}
+              style={{
+                marginBottom: "15px",
+                padding: "15px",
+                border: "1px solid #334155",
+                borderRadius: "10px",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 600 }}>
+                    <Wrench size={16} style={{ marginRight: "6px" }} />
+                    {o.machine}
+                  </p>
 
-              <p style={{ margin: "4px 0", color: "#475569" }}>
-                {o.reason}
-              </p>
+                  <p style={{ margin: "4px 0", color: "#475569" }}>
+                    {o.reason}
+                  </p>
 
-              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
-                <Calendar size={12} /> {o.stop_date} &nbsp;
-                <Clock size={12} /> {o.stop_time}
-              </p>
+                  <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                    <Calendar size={12} /> {o.stop_date} &nbsp;
+                    <Clock size={12} /> {o.stop_time}
+                  </p>
 
-              {o.details && (
-                <p style={{ marginTop: "6px" }}>{o.details}</p>
-              )}
+                  {o.details && (
+                    <p style={{ marginTop: "6px" }}>{o.details}</p>
+                  )}
 
-              {o.photo_name && (
-                <img
-                  src={
-                    supabase.storage
-                      .from("poze")
-                      .getPublicUrl(o.photo_name).data.publicUrl
-                  }
-                  alt="poza"
-                  style={{
-                    width: "120px",
-                    marginTop: "10px",
-                    borderRadius: "10px",
-                  }}
-                />
-              )}
+                  {o.photo_name && (
+                    <img
+                      src={
+                        supabase.storage
+                          .from("poze")
+                          .getPublicUrl(o.photo_name).data.publicUrl
+                      }
+                      alt="poza"
+                      style={{
+                        width: "120px",
+                        marginTop: "10px",
+                        borderRadius: "10px",
+                      }}
+                    />
+                  )}
+                </div>
+
+                {role === "admin" && (
+                  <button onClick={() => handleDelete(o.id)}>
+                    Șterge
+                  </button>
+                )}
+              </div>
             </div>
-
-            {role === "admin" && (
-              <button onClick={() => handleDelete(o.id)}>
-                Șterge
-              </button>
-            )}
-          </div>
-        </div>
-      );
-    })
-  )}
-</div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
