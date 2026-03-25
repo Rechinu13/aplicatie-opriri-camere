@@ -177,7 +177,7 @@ export default function LoginPage() {
 
           <p style={bottomText}>
             Nu ai cont?{" "}
-            <Link href="/register" style={linkStyle}>
+          <Link href={`/login?invite=${inviteCode || ""}`}>
               Creează cont
             </Link>
           </p>
