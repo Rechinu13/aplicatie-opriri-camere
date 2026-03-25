@@ -1,5 +1,6 @@
 "use client";
 
+import { exportToExcel } from "@/lib/exportExcel";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { getUserWithRole } from "@/lib/getUser";
@@ -109,81 +110,97 @@ export default function DashboardPage() {
   const uniqueMachines = [...new Set(opriri.map((o) => o.machine))];
 
   return (
-    <div style={{ padding: "40px", maxWidth: "1100px", margin: "auto" }}>
-      <h1 style={{ marginBottom: "30px" }}>Dashboard</h1>
+  <div style={{ padding: "40px", maxWidth: "1100px", margin: "auto" }}>
+    <h1 style={{ marginBottom: "10px" }}>Dashboard</h1>
 
-      {/* 🔥 FILTRE */}
-      <div className="card" style={{ marginBottom: "30px" }}>
-        <h3>Filtre</h3>
+    {/* 🔥 BUTON EXPORT */}
+    <button
+      onClick={() => exportToExcel(filtered)}
+      style={{
+        marginBottom: "20px",
+        padding: "10px 16px",
+        background: "#22c55e",
+        border: "none",
+        borderRadius: "10px",
+        color: "white",
+        fontWeight: "600",
+        cursor: "pointer",
+      }}
+    >
+      Export Excel
+    </button>
 
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
+    {/* 🔥 FILTRE */}
+    <div className="card" style={{ marginBottom: "30px" }}>
+      <h3>Filtre</h3>
 
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
 
-          <select
-            value={selectedMachine}
-            onChange={(e) => setSelectedMachine(e.target.value)}
-          >
-            <option value="">Toate mașinile</option>
-            {uniqueMachines.map((m) => (
-              <option key={m}>{m}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
 
-      {/* 📊 STATS */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
-        <div className="card">
-          <p>Total opriri</p>
-          <h2>{total}</h2>
-        </div>
-
-        <div className="card">
-          <p>Top mașină</p>
-          <h2>{topMachine}</h2>
-        </div>
-
-        <div className="card">
-          <p>Top motiv</p>
-          <h2>{topReason}</h2>
-        </div>
-      </div>
-
-      {/* 📈 GRAFIC ZILE */}
-      <div className="card" style={{ marginBottom: "30px" }}>
-        <h3>Opriri pe zile</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartDataDays}>
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* 📊 GRAFIC MASINI */}
-      <div className="card">
-        <h3>Opriri pe mașini</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartDataMachines}>
-            <XAxis dataKey="machine" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" />
-          </BarChart>
-        </ResponsiveContainer>
+        <select
+          value={selectedMachine}
+          onChange={(e) => setSelectedMachine(e.target.value)}
+        >
+          <option value="">Toate mașinile</option>
+          {uniqueMachines.map((m) => (
+            <option key={m}>{m}</option>
+          ))}
+        </select>
       </div>
     </div>
-  );
-}
+
+    {/* 📊 STATS */}
+    <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
+      <div className="card">
+        <p>Total opriri</p>
+        <h2>{total}</h2>
+      </div>
+
+      <div className="card">
+        <p>Top mașină</p>
+        <h2>{topMachine}</h2>
+      </div>
+
+      <div className="card">
+        <p>Top motiv</p>
+        <h2>{topReason}</h2>
+      </div>
+    </div>
+
+    {/* 📈 GRAFIC ZILE */}
+    <div className="card" style={{ marginBottom: "30px" }}>
+      <h3>Opriri pe zile</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={chartDataDays}>
+          <XAxis dataKey="day" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+
+    {/* 📊 GRAFIC MASINI */}
+    <div className="card">
+      <h3>Opriri pe mașini</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={chartDataMachines}>
+          <XAxis dataKey="machine" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
+);
